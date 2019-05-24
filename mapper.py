@@ -11,11 +11,9 @@ import threading
 
 def mapper(file):
 	"""
-	Read the json file, called def preProcess() and def writeFile()
+	Read the json file, called def preProcess()
 	return: mapper.txt file - with word tokenizer formatted as "word 1" line by line
 	"""
-	# word_lst = []
-	# count = 0
 	wd_lst = []
 	map_f = open("mapper.txt", "w+")
 
@@ -68,29 +66,3 @@ def preProcess(json_dic):
 # mapper("2014news1000.json")
 
 
-# multi threading
-
-
-# Create a list of jobs and then iterate through
-# the number of thread appending each process to
-# the job list
-
-# t1 = threading.Thread(target = mapper, args = ("2014news1000.json", ))
-# t2 = threading.Thread(target = mapper, args = ("2014news1000.json", ))
-# t3 = threading.Thread(target = mapper, args = ("2014news1000.json", ))
-# t4 = threading.Thread(target = mapper, args = ("2014news1000.json", ))
-
-# # Start the processes (i.e. calculate the random number lists)
-# t1.start()
-# t2.start()
-# t3.start()
-# t4.start()
-
-
-# # Ensure all of the processes have finished
-# t1.join()
-# t2.join()
-# t3.join()
-# t4.join()
-
-# print("threading complete.")

@@ -1,6 +1,6 @@
-boston 8
-university 16
-michigan 8
-computer 8
-science 16
-actuary 8
+boston 4
+university 8
+michigan 4
+computer 4
+science 8
+actuary 4

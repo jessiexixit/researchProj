@@ -14,12 +14,12 @@ def main():
 
 	# multi threading to reduce files
 	files_lst = ["map1.txt","map2.txt","map3.txt","map4.txt"]
+	# reducer(files_lst)
 
-
-	t1 = threading.Thread(target = reducer, args = (files_lst[0],))
-	t2 = threading.Thread(target = reducer, args = (files_lst[1],))
-	t3 = threading.Thread(target = reducer, args = (files_lst[2],))
-	t4 = threading.Thread(target = reducer, args = (files_lst[3],))
+	t1 = threading.Thread(target = reducer, args = ([files_lst[0]],))
+	t2 = threading.Thread(target = reducer, args = ([files_lst[1]],))
+	t3 = threading.Thread(target = reducer, args = ([files_lst[2]],))
+	t4 = threading.Thread(target = reducer, args = ([files_lst[3]],))
 
 	t1.start() 
 	t2.start()
@@ -31,7 +31,8 @@ def main():
 	t3.join()
 	t4.join()
 
-	reducer("reducer.txt")
+
+	reducer(["reducer.txt"])
 
 
 if __name__ == "__main__":
