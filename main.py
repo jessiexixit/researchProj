@@ -4,6 +4,7 @@ import mapper
 import reducer
 import toK
 
+# this is a main function 
 def main():
 	mapp = mapper(sys.argv[0])  # return a mapper.txt file
 	# os.system("wc -l mapper.txt") ## ??????? 
