@@ -1,42 +1,47 @@
 import sys
-import os
-import mapper
-import reducer
-import toK
+from mapper import mapper
+from reducer import reducer
+from topK import mostCommon
+from concurrent.futures import ThreadPoolExecutor
+import time
+import threading
 
-# this is a main function 
 def main():
-	mapp = mapper(sys.argv[0])  # return a mapper.txt file
-	# os.system("wc -l mapper.txt") ## ??????? 
-	# I want to parse in the linux command, check how many lines in the mapper.txt file, and split into four files [map1.txt, map2.txt ... ]
+	file = sys.argv[1]
+	count = 0 # line count
 
-	redu = reducer(mapp)  # reduce the mapper.txt
-	mostCommon(redu, sys.argv[1])
+	# count how many lines in file
+	count = sum(1 for line in open(file))
+	line_split = int(count/4)
+
+	# Read in the file once and build a list of line offsets
+	line_offset = [0, line_split, 2*line_split, 3*line_split]  # [0, 1st break point, 2nd break point, 3rd break point]
 
 	# multi threading to reduce files
-	files_lst = ["map1.txt","map2.txt","map3.txt","map4.txt"]
-	# reducer(files_lst)
+	files_lst = ["mapper0.txt","mapper"+str(line_split)+".txt","mapper"+str(2*line_split)+".txt","mapper"+str(3*line_split)+".txt"]
 
-	t1 = threading.Thread(target = reducer, args = ([files_lst[0]],))
-	t2 = threading.Thread(target = reducer, args = ([files_lst[1]],))
-	t3 = threading.Thread(target = reducer, args = ([files_lst[2]],))
-	t4 = threading.Thread(target = reducer, args = ([files_lst[3]],))
-
-	t1.start() 
-	t2.start()
-	t3.start()
-	t4.start()
-
-	t1.join()
-	t2.join()
-	t3.join()
-	t4.join()
+	with ThreadPoolExecutor(max_workers=4) as executor:
+		future1 = executor.submit(mapper, file, line_offset[0], line_offset[1])
+		time.sleep(1)
+		future2 = executor.submit(mapper, file, line_offset[1], line_offset[2])
+		time.sleep(1)
+		future3 = executor.submit(mapper, file, line_offset[2], line_offset[3])
+		time.sleep(1)
+		future4 = executor.submit(mapper, file, line_offset[3], count)
+		time.sleep(1)
+		future1 = executor.submit(reducer, [files_lst[0]])
+		future2 = executor.submit(reducer, [files_lst[1]])
+		future3 = executor.submit(reducer, [files_lst[2]])
+		future4 = executor.submit(reducer, [files_lst[3]])
+		time.sleep(1)
 
 
 	reducer(["reducer.txt"])
+	print(mostCommon("reducer1.txt", sys.argv[2]))
+
+if __name__== "__main__":
+	main()
 
 
-if __name__ == "__main__":
-   main()
 
 

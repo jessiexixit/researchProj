@@ -1,15 +1,11 @@
-
 import reducer
 
 def mostCommon(file, x):
 	"""
-	Find the xK most frequent words in the document
+	Find the x thousand most frequent words in the json document
+	return: x thousand most frequent words list
 	"""
-	# freq_dist = nltk.FreqDist(lst)
-	# mst_freq = freq_dist.most_common(x*100)
-	# # mst_freq = mst_freq.keys()
-	# return mst_freq
-
+	x = int(x)
 	wd_lst = []
 	line_lst = []
 	lst = []
@@ -26,6 +22,4 @@ def mostCommon(file, x):
 		lst.append(wd_lst[i][0])
 		
 	return lst
-
-
 

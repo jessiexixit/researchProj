@@ -1,27 +1,25 @@
 import json
 import nltk
-import numpy as np
 import re # remove digit
 from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 import string
-import threading
+import itertools
 
-
-def mapper(file):
+def mapper(file, n, m): # n is the starting line, m is the ending line
 	"""
-	Read the json file, called def preProcess()
-	return: mapper.txt file - with word tokenizer formatted as "word 1" line by line
+	Read the json file, called preProcess()
+	return: 4 mapper.txt files - with word tokenizer formatted as "word 1" line by line
 	"""
 	wd_lst = []
-	map_f = open("mapper.txt", "w+")
-
+	json_dic = {}
+	map_file_list = []
+	# map_f = open(map_f, "w+")
+	map_f = open("mapper"+str(n)+".txt", "w+")
 	with open(file, 'r') as f:
 	    try:
-	        while True:
-	            line = f.readline()
-
+	        for line in itertools.islice(f, n, m):
 	            if line:
 	                json_dic = json.loads(line) # generate dictionary one by one
 	                wd_lst = preProcess(json_dic)
@@ -62,7 +60,6 @@ def preProcess(json_dic):
 
 
 
-# main
-# mapper("2014news1000.json")
+
 
 
