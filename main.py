@@ -11,7 +11,11 @@ def main():
 	count = 0 # line count
 
 	# count how many lines in file
-	count = sum(1 for line in open(file))
+	# count = sum(1 for line in open(file))
+	count = 0
+	for line in open("2014news1000.json"):
+		count += 1
+
 	line_split = int(count/4)
 
 	# Read in the file once and build a list of line offsets
@@ -38,6 +42,8 @@ def main():
 
 	reducer(["reducer.txt"])
 	print(mostCommon("reducer1.txt", sys.argv[2]))
+	# print(len(mostCommon("reducer1.txt", sys.argv[2])))
+	# print(len(set(mostCommon("reducer1.txt", sys.argv[2]))))
 
 if __name__== "__main__":
 	main()
