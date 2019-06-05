@@ -1,29 +1,20 @@
 from matrix import *
+import sys
+
+def main():
+	file = sys.argv[1]
+	wind_size = int(sys.argv[2])
 
 
-# main
-docTermMat, tf_mat = dtm(1)
-# print("term frequncy matrix ------------------------------ ")
-# print(tf_mat[0,])
+	docTermMat, tf_mat = dtm(file, wind_size)
+	termDocMat = tdm(docTermMat)
+	idf_mat = idf(file, termDocMat, wind_size)
+	tf_idf_mat = tf_idf(tf_mat, idf_mat)
+	tar_rown = readWindowsz(file, wind_size)[1]
+	print(similarTest(tf_idf_mat, tar_rown))
 
-# print("DTM ------------------------------ ")
-# print(docTermMat)
-
-# print("TDM ------------------------------ ")
-termDocMat = tdm(docTermMat)
-# print(termDocMat)
-
-# print("TDM ----first row -------------------------- ")
-# print(termDocMat[0,])
-
-
-# print("IDF ------------------------- ")
-idf = idf(termDocMat, 1)
-# print(idf)
-
-# print("tf-idf ------------------------- ")
-# print(tf_idf(tf_mat, idf))
-
+if __name__== "__main__":
+	main()
 
 
 

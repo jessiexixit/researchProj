@@ -37,4 +37,3 @@ def reducer(files_lst):
 	return red_f
 
 
-
