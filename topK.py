@@ -1,8 +1,14 @@
+"""
+topK.py file:
+This file contain one function (mostCommon)
+"""
 import reducer
 
 def mostCommon(file, x):
 	"""
-	Find the x thousand most frequent words in the json document
+	Find the x thousand (1000x) most frequent words in the json document ("text")
+	Store it in a list [[word,count], ... ], sorted the list
+	Save only the top words in to a new list
 	return: x thousand most frequent words list
 	"""
 	x = int(x)

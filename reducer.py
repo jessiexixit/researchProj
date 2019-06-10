@@ -1,8 +1,13 @@
+"""
+reduce.py: (mapreduce - reduce)
+This file contains one function (reducer). 
+Reading txt files generate by map. Create a reducer1.txt file with contain all the words and word counts from the json file - "text" part.
+"""
 import mapper
 
 def reducer(files_lst):
 	"""
-	Read list of 4 mapper.txt file, reduce into a reducer.txt file, reduce the reducer.txt file to reducer1.txt.
+	Read a list of 4 mapper.txt files, reduce the words into a reducer.txt file, and then reduce the reducer.txt file to reducer1.txt.
 	return: reducer1.txt file.
 	"""
 	word_dic = {}

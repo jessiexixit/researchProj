@@ -1,3 +1,11 @@
+"""
+mapper.py file: (mapreduce - map)
+This file contains two function (mapper, preProcess). 
+Using the json file as system input, read json file line by line and generate dictionary line by line.
+json file line format: {"url": " ", "title": " ", "dop": " ", "text": " "}
+Extract the words in "text", doing preprocessing and generate a words token list. Store the words in the mapper.txt file.
+"""
+
 import json
 import nltk
 import re # remove digit
@@ -7,10 +15,11 @@ from nltk.stem.porter import PorterStemmer
 import string
 import itertools
 
-def mapper(file, n, m): # n is the starting line, m is the ending line
+def mapper(file, n, m): # n is the starting line, m is the ending line. (first line is 0)
 	"""
-	Read the json file, called preProcess()
-	return: 4 mapper.txt files - with word tokenizer formatted as "word 1" line by line
+	Read the json file line by line and called preProcess() function 
+	return: four mapper.txt files. The mapper.txt files contain word tokenizer formatted as "word" 1 line by line. 
+	"word" is the actual word, 1 is the count.
 	"""
 	wd_lst = []
 	json_dic = {}
@@ -18,28 +27,24 @@ def mapper(file, n, m): # n is the starting line, m is the ending line
 	# map_f = open(map_f, "w+")
 	map_f = open("mapper"+str(n)+".txt", "w+")
 	with open(file, 'r') as f:
-	    try:
-	        for line in itertools.islice(f, n, m):
-	            if line:
-	                json_dic = json.loads(line) # generate dictionary one by one
-	                wd_lst = preProcess(json_dic)
-	                for i in wd_lst:    # write the after process word list into file mapper.txt
-	                	map_f.write("{} {}\n".format(i,1))
-	                # print("test 1")
-	            else:
-	            	break
-	       
-	    except:
+		for line in itertools.islice(f, n, m): # read the file start from row n to row m
+			json_dic = json.loads(line) # load json to generate dictionary 
+			wd_lst = preProcess(json_dic)
+			for i in wd_lst:    # write the processed word list into mapper.txt file
+				map_f.write("{} {}\n".format(i,1))
+		        # print("test 1")
+
 	    	
-	    	f.close()
-	    	map_f.close()
-	    	return map_f
+	f.close()
+	map_f.close()
+	return map_f
 
 def preProcess(json_dic):
 	"""
-	Extract the text into text list
-	Remove all the punctuations and stop words 
-	return: word tokenizer list after pre-processing
+	json_dic: This is the dictionary after reading the json file, one line is one dictionary
+	Extract the "text" in the dictionary into token list
+	Remove all the punctuations, transform to lower case, remove stop words, number, special charaters, stemming
+	return: word tokenizer list after pre-processing (word_lst)
 	"""
 	word_lst = []
 	text = json_dic["text"].lower() # words string

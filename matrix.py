@@ -5,10 +5,15 @@ from topK import mostCommon
 import numpy as np
 
 
-def readWindowsz(file, n):
+def readWindowsz(file, n, start_date):
 	"""
-	read a window size n, for example 15 means (15 days)
-	return: list of news [{},{},{}...]
+	start_date is a string ("20140101")
+	n: the window size we want to compare
+	read a window size n and plus the target day, for example, 15 means (15+1 = 16 days). Parse the json into a dictionary and store all
+	the dictionary in a list.
+	return: 
+	news_lst: list of news [{},{},{}...] 
+	count_save: save the row number of the first news in the 16th day, which is the first target news (first row is 0)
 	"""
 
 	count = 0 # count number of line
@@ -17,29 +22,49 @@ def readWindowsz(file, n):
 	day = 0 # count number of day
 	# days_offset_lst = [0]
 	news_lst = []
+	count_save = 0
 
 	with open(file, 'r') as f:
 		for line in f:
 			if (day <= (n + 1)):
 				json_dic = json.loads(line)
-				news_lst.append(json_dic)
 				count += 1
-				if (json_dic["dop"][:8] != date):
-					day += 1
-					date = json_dic["dop"][:8]
-					if (day == (n + 1)):
-						count_save = count - 1  # save the row number of 16th day, first row is 0
+				if ((int(json_dic["dop"][:8]) - int(start_date) >= 0)):
+					news_lst.append(json_dic)
+					if (json_dic["dop"][:8] != date):
+						day += 1
+						date = json_dic["dop"][:8]
+						if (day == (n + 1)):
+							count_save = count - 1  # save the row number of 16th day, first row is 0
+				# else:
+				# 	contiune 
 
 	f.close()
 
 	return news_lst, count_save
 
 
+def dateStore(file):
+	date_lst = []
+	with open(file, 'r') as f:
+		for line in f:
+			json_dic = json.loads(line)
+			date = json_dic["dop"][:8]
+			if date not in date_lst:
+				date_lst.append(date)
+
+
+
+	return date_lst
 
 
 def mapreduce(news_lst):
 	"""
-	for all of the words in the window set, find the most thousand common word
+	news_lst: The list contain all the news dictionary in the window size [{},{},{}...] 
+	For all of the words in the dictionary of the "text, called preProcess function and doing mapreduct procedure.
+	mapper: write all the token to a tf.txt file 
+	reducer: reduce the tf.txt file into reducer.txt and reduce the reducer.txt into reducer1.txt
+	Find the most thousand common word
 	return: the most command words list
 	"""
 	map_f = open("tf.txt", "w")
@@ -59,7 +84,7 @@ def mapreduce(news_lst):
 
 
 
-def newsTotokenDic(news):
+def newsTotokenDic(news): 
 	"""
 	For each news, generate a word_dic with word as key and word count as value
 	return: word_dic (a dictionary)
@@ -100,16 +125,16 @@ def termFreqlist(mstCom_lst, news):
 	return lst_of_lst, word_dic
 
 
-def dtm(file, n):
+def documentTermMatrix(file, n, start_date):
 	"""
 	n: how many days is a window size 
-	call function readWindowsz, mapreduce, termFreqlist and generate a dtm of a window size
+	call function readWindowsz, mapreduce, termFreqlist and generate a documentTermMatrix of a window size
 	return: a numpy matrix
 	"""
 	lst = []
 	tf_lst = []
 
-	news_lst = readWindowsz(file, n)[0]
+	news_lst = readWindowsz(file, n, start_date)[0]
 	# print("what is length of news_lst", len(news_lst))
 	mstCom_lst = mapreduce(news_lst)
 	# print("what is length of mstCom_lst", len(mstCom_lst))
@@ -132,18 +157,18 @@ def dtm(file, n):
 	return docTermMat, tf_mat
 
 
-def tdm(docTermMat):
+def termDocumentMatrix(docTermMat):
 	"""
 	mtx: a document term matrix 
 	return: term document matrix (a numpy matrix using transpose)
 	"""
-	termDocMat = np.transpose(docTermMat) # tdm is transpose of dtm
+	termDocMat = np.transpose(docTermMat) # tdm is transpose of documentTermMatrix
 	return termDocMat
 
 
 
-def idf(file, termDocMat, n):
-	N = len(readWindowsz(file, n)[0])
+def IDF(file, termDocMat, n, start_date):
+	N = len(readWindowsz(file, n, start_date)[0])
 	# print("N -------------------- ", N)
 	count_t = np.count_nonzero(termDocMat, axis = 1)
 	# print("what is count_t", count_t)
@@ -152,7 +177,7 @@ def idf(file, termDocMat, n):
 	return idf
 
 
-def tf_idf(tf_mat, idf):
+def TF_IDF(tf_mat, idf):
 	idf = np.transpose(idf)
 	return np.multiply(tf_mat, idf)
 
