@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 import time
 import threading
 import multiprocessing
+from scipy import sparse
 
 
 def readWindowsz(file, n, start_date):
@@ -61,6 +62,10 @@ def readWindowsz(file, n, start_date):
 # print(readWindowsz("2014news1000.json", 1, "20140102")[2])
 
 def dateStore(file):
+	"""
+	store all the unique date in the file in order
+	return: date_lst contain all the date in the file
+	"""
 	date_lst = []
 	with open(file, 'r') as f:
 		for line in f:
@@ -188,6 +193,8 @@ def termDocumentMatrix(docTermMat):
 	return: term document matrix (a numpy matrix using transpose)
 	"""
 	termDocMat = np.transpose(docTermMat) # tdm is transpose of documentTermMatrix
+	docTermMat = sparse.csr_matrix(docTermMat) #### store dense docTermMat
+
 	return termDocMat
 
 
@@ -199,12 +206,20 @@ def IDF(file, termDocMat, n, start_date):
 	# print("what is count_t", count_t)
 	idf = np.log(np.divide(N, (count_t + 1)))
 	# print("idf --------------- ", idf)
+
+	termDocMat = sparse.csr_matrix(termDocMat) #### store dense termDocMat
+
 	return idf
 
 
 def TF_IDF(tf_mat, idf):
 	idf = np.transpose(idf)
-	return np.multiply(tf_mat, idf)
+	tf_idf_mat = np.multiply(tf_mat, idf)
+
+	tf_mat = sparse.csr_matrix(tf_mat) #### store dense tf_mat
+	idf = sparse.csr_matrix(idf)  #### store dense idf
+
+	return tf_idf_mat
 
 
 
@@ -243,6 +258,10 @@ def similarTest(tf_idf_mat, tar_rown, date_count_dic, start_date):
 		# print("what is max_index ========== ", max_index)
 		simi_list.append([i + len(old_news_mat) + row_summ + 1, max_index + row_summ + 1, max_value])
 	# print("what is simi_lst", simi_list)
+
+	tf_idf_mat = sparse.csr_matrix(tf_idf_mat) #### store dense tf_idf_mat
+	print(tf_idf_mat)
+
 	return simi_list
 
 
