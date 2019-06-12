@@ -39,6 +39,9 @@ def mapper(file, n, m): # n is the starting line, m is the ending line. (first l
 	map_f.close()
 	return map_f
 
+# def multi_run_wrapper(args):
+# 	return mapper(*args)
+
 def preProcess(json_dic):
 	"""
 	json_dic: This is the dictionary after reading the json file, one line is one dictionary

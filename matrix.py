@@ -4,6 +4,14 @@ from reducer import reducer
 from topK import mostCommon
 import numpy as np
 
+from mapper import mapper
+from reducer import reducer
+from topK import mostCommon
+from concurrent.futures import ThreadPoolExecutor
+import time
+import threading
+import multiprocessing
+
 
 def readWindowsz(file, n, start_date):
 	"""
@@ -16,33 +24,41 @@ def readWindowsz(file, n, start_date):
 	count_save: save the row number of the first news in the 16th day, which is the first target news (first row is 0)
 	"""
 
-	count = 0 # count number of line
-	pre_count = 0 
-	date = ""
-	day = 0 # count number of day
-	# days_offset_lst = [0]
-	news_lst = []
+	count = 0 # count line number
+	current_date = "" # current date is the date of this current processing row 
+	news_lst = [] 
+	day = 0 # count how many day have already store in news_lst
+	before_date = ""
 	count_save = 0
+	date_count_dic = {} # date is key, for each date how many row is value
 
 	with open(file, 'r') as f:
 		for line in f:
-			if (day <= (n + 1)):
-				json_dic = json.loads(line)
-				count += 1
-				if ((int(json_dic["dop"][:8]) - int(start_date) >= 0)):
-					news_lst.append(json_dic)
-					if (json_dic["dop"][:8] != date):
-						day += 1
-						date = json_dic["dop"][:8]
-						if (day == (n + 1)):
-							count_save = count - 1  # save the row number of 16th day, first row is 0
-				# else:
-				# 	contiune 
+			json_dic = json.loads(line)
+			count += 1
+			before_date = current_date # store the last row date
+			current_date = json_dic["dop"][:8]
+
+			if (current_date not in date_count_dic):
+				date_count_dic[current_date] = 1
+			else:
+				date_count_dic[current_date] += 1
+
+			if (current_date >= start_date and current_date != before_date):
+				day += 1
+			if (int(current_date) - int(start_date) >= 0 and (day <= n + 1)): # If current date is equal or larger than start date and day count smaller than windown size + 1
+				# if (current_date != )
+				news_lst.append(json_dic)
+				if (day < (n + 1)):  
+						count_save += 1  
 
 	f.close()
 
-	return news_lst, count_save
 
+
+	return news_lst, count_save, date_count_dic
+
+# print(readWindowsz("2014news1000.json", 1, "20140102")[2])
 
 def dateStore(file):
 	date_lst = []
@@ -58,28 +74,37 @@ def dateStore(file):
 	return date_lst
 
 
-def mapreduce(news_lst):
+def mapreduce(file, maxx):
 	"""
-	news_lst: The list contain all the news dictionary in the window size [{},{},{}...] 
-	For all of the words in the dictionary of the "text, called preProcess function and doing mapreduct procedure.
-	mapper: write all the token to a tf.txt file 
-	reducer: reduce the tf.txt file into reducer.txt and reduce the reducer.txt into reducer1.txt
-	Find the most thousand common word
+	using map reduce, return the most command words list from the whole file
 	return: the most command words list
 	"""
-	map_f = open("tf.txt", "w")
-	# print("!!!")
-	for json_dic in news_lst:
+	# count how many lines in file
+	count = 0
+	for line in open(file):
+		count += 1
 
-		wd_lst = preProcess(json_dic)
-		for i in wd_lst:    # write the after process word list into file mapper.txt
-			map_f.write("{} {}\n".format(i,1))
-			# print("!!!")
+	line_split = int(count/4)
 
-	map_f.close()
-	reducer(["tf.txt"])
+	# Read in the file once and build a list of line offsets
+	line_offset = [0, line_split, 2*line_split, 3*line_split, count]  # [0, 1st break point, 2nd break point, 3rd break point]
+
+	# multi threading to reduce files
+	files_lst = ["mapper0.txt","mapper"+str(line_split)+".txt","mapper"+str(2*line_split)+".txt","mapper"+str(3*line_split)+".txt"]
+
+	cpus = multiprocessing.cpu_count()
+
+	with ThreadPoolExecutor(max_workers=cpus) as executor:
+		for i in range(len(line_offset)-1):
+			executor.submit(mapper, file, line_offset[i], line_offset[i+1])
+			time.sleep(1)
+			executor.submit(reducer, [files_lst[i]])
+			time.sleep(1)
+
+
 	reducer(["reducer.txt"])
-	mstCom_lst = mostCommon("reducer1.txt", 2)  ####### make change here !!!!!!!!!!!!!!!!!!!
+	mstCom_lst = mostCommon("reducer1.txt", maxx)
+
 	return mstCom_lst
 
 
@@ -125,7 +150,7 @@ def termFreqlist(mstCom_lst, news):
 	return lst_of_lst, word_dic
 
 
-def documentTermMatrix(file, n, start_date):
+def documentTermMatrix(file, n, start_date, mstCom_lst):
 	"""
 	n: how many days is a window size 
 	call function readWindowsz, mapreduce, termFreqlist and generate a documentTermMatrix of a window size
@@ -136,7 +161,7 @@ def documentTermMatrix(file, n, start_date):
 
 	news_lst = readWindowsz(file, n, start_date)[0]
 	# print("what is length of news_lst", len(news_lst))
-	mstCom_lst = mapreduce(news_lst)
+	# mstCom_lst = mapreduce(news_lst)
 	# print("what is length of mstCom_lst", len(mstCom_lst))
 
 	for i in range(len(news_lst)):
@@ -182,26 +207,41 @@ def TF_IDF(tf_mat, idf):
 	return np.multiply(tf_mat, idf)
 
 
-def similarTest(tf_idf_mat, tar_rown):
+
+def similarTest(tf_idf_mat, tar_rown, date_count_dic, start_date):
 	"""
 	tf_idf_mat: the tf_idf of 1-16 days
 	tar_rown: the row number of the 1 news of 16 days
 	"""
 	max_simi = 0
-	simi_list = [] # [row number of target news, row number of max similar news, similar number] (1st row is index 0)
+	simi_list = [] # [row number of target news, row number of max similar news, similar number] first row has row number 1
+	row_summ = 0 
 
 	new_news_mat = tf_idf_mat[tar_rown:,]
 	old_news_mat = tf_idf_mat[:tar_rown,]
 
+	# print("tar_rown",tar_rown)
+	# print("lenght of tf_idf_mat", len(tf_idf_mat))
+	# print("new_news_mat",len(new_news_mat))
+	# print("old_news_mat",len(old_news_mat))
+
+	for i in date_count_dic:
+		if (int(i) <  int(start_date)):
+			row_summ += date_count_dic[i]
+
+
 	for i in range(len(new_news_mat)):
 		item = new_news_mat[i,]
 		item = np.transpose(item)
+		# print("item", item)
 		simi = old_news_mat.dot(item)
+		# print("simi", simi)
 		max_value = np.max(simi)
+		# print("max_value", max_value)
 		# print("what is max_value ========= ", max_value)
 		max_index = np.argmax(simi)
 		# print("what is max_index ========== ", max_index)
-		simi_list.append([i + len(old_news_mat), max_index, max_value])
+		simi_list.append([i + len(old_news_mat) + row_summ + 1, max_index + row_summ + 1, max_value])
 	# print("what is simi_lst", simi_list)
 	return simi_list
 
