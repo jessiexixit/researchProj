@@ -97,7 +97,9 @@ def mapreduce(file, maxx):
 	# multi threading to reduce files
 	files_lst = ["mapper0.txt","mapper"+str(line_split)+".txt","mapper"+str(2*line_split)+".txt","mapper"+str(3*line_split)+".txt"]
 
-	cpus = multiprocessing.cpu_count()
+	# cpus = multiprocessing.cpu_count()
+	cpus = 4
+
 
 	with ThreadPoolExecutor(max_workers=cpus) as executor:
 		for i in range(len(line_offset)-1):
@@ -260,7 +262,7 @@ def similarTest(tf_idf_mat, tar_rown, date_count_dic, start_date):
 	# print("what is simi_lst", simi_list)
 
 	tf_idf_mat = sparse.csr_matrix(tf_idf_mat) #### store dense tf_idf_mat
-	print(tf_idf_mat)
+	# print(tf_idf_mat)
 
 	return simi_list
 

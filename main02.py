@@ -1,8 +1,12 @@
 from matrix import *
+from novelityPlot import *
 
 import sys
 
 def main():
+	"""
+	input: file, window_size, x_most_command word
+	"""
 	file = sys.argv[1]
 	wind_size = int(sys.argv[2])
 	maxx = int(sys.argv[3])
@@ -25,7 +29,11 @@ def main():
 		tf_idf_mat = TF_IDF(tf_mat, idf_mat)
 		tar_rown = readWindowsz(file, wind_size, i)[1]
 		date_count_dic = readWindowsz(file, wind_size, i)[2]
-		print(similarTest(tf_idf_mat, tar_rown, date_count_dic, i))
+		simi_list = similarTest(tf_idf_mat, tar_rown, date_count_dic, i)
+		print(simi_list)
+
+		# print()
+		plot(simi_list)
 		print()
 
 
