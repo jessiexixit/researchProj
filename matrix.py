@@ -67,16 +67,20 @@ def dateStore(file):
 	return: date_lst contain all the date in the file
 	"""
 	date_lst = []
+	dateTime_lst = []
+
 	with open(file, 'r') as f:
 		for line in f:
 			json_dic = json.loads(line)
 			date = json_dic["dop"][:8]
+			date_time = json_dic["dop"]
+			dateTime_lst.append(date_time)
 			if date not in date_lst:
 				date_lst.append(date)
 
 
 
-	return date_lst
+	return date_lst, dateTime_lst
 
 
 def mapreduce(file, maxx):
@@ -97,8 +101,8 @@ def mapreduce(file, maxx):
 	# multi threading to reduce files
 	files_lst = ["mapper0.txt","mapper"+str(line_split)+".txt","mapper"+str(2*line_split)+".txt","mapper"+str(3*line_split)+".txt"]
 
-	# cpus = multiprocessing.cpu_count()
-	cpus = 4
+	cpus = multiprocessing.cpu_count()
+	# cpus = 4
 
 
 	with ThreadPoolExecutor(max_workers=cpus) as executor:

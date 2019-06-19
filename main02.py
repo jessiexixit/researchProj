@@ -1,6 +1,6 @@
 from matrix import *
 from novelityPlot import *
-
+import os
 import sys
 
 def main():
@@ -14,11 +14,18 @@ def main():
 	# start_date = "20140101"
 
 	# length_file = sum(1 for line in file) 
-	date_lst = dateStore(file)
+	date_lst = dateStore(file)[0]
 	# print("date_lst1: ", date_lst)
 	date_lst = date_lst[0:(len(date_lst) - wind_size)]
 
 	# print("date_lst2: ",date_lst)
+
+	cur_dir = os.getcwd()
+
+	folder_name = 'picture'
+	if os.path.isdir(cur_dir):
+		if not os.path.exists('picture'):
+			os.mkdir(os.path.join(cur_dir, folder_name))
 
 
 	for i in date_lst:
@@ -33,7 +40,7 @@ def main():
 		print(simi_list)
 
 		# print()
-		plot(simi_list)
+		plot(simi_list, file)
 		print()
 
 

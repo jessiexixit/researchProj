@@ -59,6 +59,7 @@ def preProcess(json_dic):
 	word_lst = tokenizer.tokenize(text)
 
 	stops = set(stopwords.words("english"))  # set stop words list
+	# print("what is stops",stops)
 	word_lst = [word for word in word_lst if word not in stops]  # remove stope words  
 	word_lst = [word for word in word_lst if word.isalpha()] # remove words with special characters
 	porter = PorterStemmer()  # stemming 
