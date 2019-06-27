@@ -8,6 +8,7 @@ from queue import PriorityQueue
 from nltk.tokenize import RegexpTokenizer
 
 
+
 class ReversePriorityQueue(PriorityQueue):
 	def put(self, tup):
 	    newtup = tup[0] * -1, tup[1]

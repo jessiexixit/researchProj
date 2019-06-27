@@ -1,7 +1,5 @@
 import json
 from mapper import preProcess
-from reducer import reducer
-from topK import mostCommon
 import numpy as np
 
 from mapper import mapper
@@ -119,6 +117,19 @@ def mapreduce(file, maxx):
 	return mstCom_lst
 
 
+def mstCom_lstToFile(mstCom_lst):
+	"""
+	generate a most common workds file
+	return: the file
+	"""
+	file = "mostCommonWords"+str(int(len(mstCom_lst)))+".txt"
+	with open(file, 'w+') as f:
+		for i in mstCom_lst:
+			f.write("{} ".format(i))
+
+	f.close()
+	return file
+
 
 def newsTotokenDic(news): 
 	"""
@@ -177,8 +188,9 @@ def documentTermMatrix(file, n, start_date, mstCom_lst):
 
 	for i in range(len(news_lst)):
 		# wd_dic = newsTotokenDic(news_lst[i])
-		lst_of_lst = termFreqlist(mstCom_lst,news_lst[i])[0]
-		word_dic = termFreqlist(mstCom_lst,news_lst[i])[1]
+		# lst_of_lst = termFreqlist(mstCom_lst,news_lst[i])[0]
+		# word_dic = termFreqlist(mstCom_lst,news_lst[i])[1]
+		lst_of_lst, word_dic = termFreqlist(mstCom_lst,news_lst[i])
 		lst.append(lst_of_lst)
 		lst_of_lst = np.array(lst_of_lst)
 		tf = np.divide(lst_of_lst, sum(word_dic.values()))

@@ -29,10 +29,10 @@ def clean(t):
            i=i+1
    return output
 
-fh=open("2014.json","r")
+fh=open("2014news1000.json","r")
 lines=fh.readlines()
 fh.close()
 for i in range(len(lines)):
 	lines[i]=clean(lines[i])
-fh=open("cleaned.json","w")
+fh=open("2014news1000_clean.json","w")
 fh.writelines(lines)
