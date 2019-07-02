@@ -34,12 +34,25 @@ def main():
 
 
 	# filter Company name
-	file = filterCompany(file, key, flag)
+	# file = filterCompany(file, key, flag)
+	# print("what is file: ",file)
+
 
 	# length_file = sum(1 for line in file) 
 	date_lst = dateStore(file)[0]  # all the unique date in the file in order
 	# print("date_lst1: ", date_lst)
-	date_lst = date_lst[0:(len(date_lst) - wind_size)]
+
+	while len(date_lst) <= 1:  # make sure at least two date in the list
+		print("No such key word in file or no enought news to calculate")
+		exit()
+
+
+	date_lst = date_lst[0:(len(date_lst) - wind_size)] # the start date list
+	while len(date_lst) == 0:
+		wind_size = int(input("Please enter a smaller window size: "))
+		date_lst = date_lst[0:(len(date_lst) - wind_size)] 
+
+
 
 	# print("date_lst2: ",date_lst)
 
@@ -64,6 +77,7 @@ def main():
 	f.close()
 
 	simi_list = []
+
 	for i in date_lst:
 		# mstCom_lst = mapreduce(file, maxx)
 		docTermMat, tf_mat = documentTermMatrix(file, wind_size, i, mstCom_lst)  ##### date cannot just add 1
@@ -74,9 +88,14 @@ def main():
 		date_count_dic = readWindowsz(file, wind_size, i)[2]
 		simi_list += similarTest(tf_idf_mat, tar_rown, date_count_dic, i)
 
+
+
 	print(simi_list)
-	plot(simi_list, file)
+	plot(simi_list, file, key, flag)
 	print()
+
+
+
 
 
 if __name__== "__main__":

@@ -43,7 +43,7 @@ def readWindowsz(file, n, start_date):
 			else:
 				date_count_dic[current_date] += 1
 
-			if (current_date >= start_date and current_date != before_date):
+			if (current_date >= start_date and current_date != before_date): # new day, day add
 				day += 1
 			if (int(current_date) - int(start_date) >= 0 and (day <= n + 1)): # If current date is equal or larger than start date and day count smaller than windown size + 1
 				# if (current_date != )
@@ -71,7 +71,7 @@ def dateStore(file):
 		for line in f:
 			json_dic = json.loads(line)
 			date = json_dic["dop"][:8]
-			date_time = json_dic["dop"]
+			date_time = json_dic["dop"][:8]
 			dateTime_lst.append(date_time)
 			if date not in date_lst:
 				date_lst.append(date)
@@ -269,7 +269,7 @@ def similarTest(tf_idf_mat, tar_rown, date_count_dic, start_date):
 		# print("item", item)
 		simi = old_news_mat.dot(item)
 		# print("simi", simi)
-		max_value = np.max(simi)
+		max_value = -np.log(np.max(simi))
 		# print("max_value", max_value)
 		# print("what is max_value ========= ", max_value)
 		max_index = np.argmax(simi)
