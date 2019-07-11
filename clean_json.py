@@ -29,10 +29,10 @@ def clean(t):
            i=i+1
    return output
 
-fh=open("facebook.json","r")
+fh=open("2014news1000.json","r")
 lines=fh.readlines()
 fh.close()
 for i in range(len(lines)):
 	lines[i]=clean(lines[i])
-fh=open("facebook_clean.json","w")
+fh=open("2014news1000_cleaned.json","w")
 fh.writelines(lines)

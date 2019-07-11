@@ -40,8 +40,6 @@ def mapper(file, n, m): # n is the starting line, m is the ending line. (first l
 	map_f.close()
 	return map_f
 
-# def multi_run_wrapper(args):
-# 	return mapper(*args)
 
 def preProcess(json_dic):
 	"""
@@ -69,37 +67,6 @@ def preProcess(json_dic):
 	return word_lst
 
 
-def make_parseable(t):
-    output=""
-    i=0
-    seen=0
-    while(i<len(t)):
-        if(t[i]=='"'):
-            if(t[i:i+8]=='"url": "'):
-                output=output+ '"url": "'
-                i=i+8
-            elif(t[i:i+13]=='", "title": "'):
-                output=output+'", "title": "'
-                i=i+13
-            elif(t[i:i+11]=='", "dop": "'):
-                output=output+'", "dop": "'
-                i=i+11
-            elif(t[i:i+12]=='", "text": "'):
-                output=output+'", "text": "'
-                i=i+12
-            elif(t[i:i+3]=='" }'):
-                output=output+'" }'
-                i=i+3
-            else:
-                i=i+1
-        elif(t[i]=='\\'):
-            i=i+1
-        else:
-            output=output+t[i]
-            i=i+1
-    return output # cleaned row dic
-
-
 def filterCompany(file, key, flag):
 	"""
 	filter news related (company name in tile or in main) to a company and store all the json news in a file called "companyname.json"
@@ -108,37 +75,37 @@ def filterCompany(file, key, flag):
 	"""
 	key = key.lower()
 	filteredFile = key+str(flag)+".json"
-	lst = []
+	# lst = []
 
 	f = open(file, 'r')
 	lines=f.readlines()
-	f.close()
-	for i in range(len(lines)):
-		row = make_parseable(lines[i])
+	
+	with open(file, "r") as f:
 		with open(filteredFile, "w+") as f1:
-			json_dic = json.loads(row)
+			for line in f:
+				json_dic = json.loads(line)
+				text = json_dic["text"].lower()
+				title = json_dic["title"].lower()
 
-			text = json_dic["text"].lower()
-			title = json_dic["title"].lower()
-			if (flag == 0): # check for text
-				if (key in word_tokenize(text)):
-					lst.append(row)
-			if (flag == 1): # check for title
-				if (key in word_tokenize(title)):
-					lst.append(row)
-			if (flag == 2): # check for title
-				if (key in word_tokenize(title)) or (key in word_tokenize(text)):
-					lst.append(row)
+				if (flag == 0): # check for text
+					if (key in word_tokenize(text)):
+						f1.write(line)
+				if (flag == 1): # check for title
+					if (key in word_tokenize(title)):
+						f1.write(line)
+				if (flag == 2): # check for title
+					if (key in word_tokenize(title)) or (key in word_tokenize(text)):
+						f1.write(line)
 
-			f1.writelines(lst)
+
 
 	f1.close()
+	f.close()
 	return filteredFile
 
 
+# filterCompany("2014news1000_cleaned.json", "china", 0)
 
-
-# filterCompany("2014news1000.json", "china", 2)
 
 
 

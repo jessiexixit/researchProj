@@ -150,7 +150,7 @@ def newsTotokenDic(news):
 
 def termFreqlist(mstCom_lst, news):
 	"""
-	check for each words in the most comment list, how many of them are in the news article.
+	check for each words in the most common list, how many of them are in the news article.
 	news: each json article
 	return: a term frequency for a document
 	"""
@@ -193,7 +193,11 @@ def documentTermMatrix(file, n, start_date, mstCom_lst):
 		lst_of_lst, word_dic = termFreqlist(mstCom_lst,news_lst[i])
 		lst.append(lst_of_lst)
 		lst_of_lst = np.array(lst_of_lst)
-		tf = np.divide(lst_of_lst, sum(word_dic.values()))
+		if (sum(word_dic.values()) != 0):
+			tf = np.divide(lst_of_lst, sum(word_dic.values()))
+		else:
+			tf = lst_of_lst
+		# tf = np.divide(lst_of_lst, sum(word_dic.values()))
 		# print(sum(word_dic.values()))
 		tf = tf_lst.append(tf)
 		
@@ -269,7 +273,12 @@ def similarTest(tf_idf_mat, tar_rown, date_count_dic, start_date):
 		# print("item", item)
 		simi = old_news_mat.dot(item)
 		# print("simi", simi)
-		max_value = -np.log(np.max(simi))
+		if (np.max(simi) != 0):
+			max_value = -np.log(np.max(simi))
+		else:
+			max_value = 0
+
+
 		# print("max_value", max_value)
 		# print("what is max_value ========= ", max_value)
 		max_index = np.argmax(simi)

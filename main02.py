@@ -34,7 +34,7 @@ def main():
 
 
 	# filter Company name
-	# file = filterCompany(file, key, flag)
+	file = filterCompany(file, key, flag)
 	# print("what is file: ",file)
 
 
@@ -48,6 +48,7 @@ def main():
 
 
 	date_lst = date_lst[0:(len(date_lst) - wind_size)] # the start date list
+	# print(len(date_lst))
 	while len(date_lst) == 0:
 		wind_size = int(input("Please enter a smaller window size: "))
 		date_lst = date_lst[0:(len(date_lst) - wind_size)] 
@@ -90,9 +91,9 @@ def main():
 
 
 
-	print(simi_list)
+	# print(simi_list)
 	plot(simi_list, file, key, flag)
-	print()
+	print("DONE!")
 
 
 
