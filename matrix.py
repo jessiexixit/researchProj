@@ -1,7 +1,6 @@
 import json
 from mapper import preProcess
 import numpy as np
-
 from mapper import mapper
 from reducer import reducer
 from topK import mostCommon
